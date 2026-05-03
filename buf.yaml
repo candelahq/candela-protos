@@ -1,0 +1,16 @@
+version: v2
+modules:
+  - path: .
+    name: buf.build/candelahq/protos
+deps:
+  - buf.build/bufbuild/protovalidate
+  - buf.build/googlecloudplatform/bq-schema-api
+lint:
+  use:
+    - STANDARD
+  except:
+    # candela.types doesn't use a version suffix — intentional.
+    - PACKAGE_VERSION_SUFFIX
+breaking:
+  use:
+    - FILE

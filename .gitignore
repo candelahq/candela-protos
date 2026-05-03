@@ -1,0 +1,6 @@
+# Generated code (consumers generate locally or via BSR remote generation)
+gen/
+
+# Nix
+result
+.direnv/

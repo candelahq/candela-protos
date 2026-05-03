@@ -1,0 +1,9 @@
+pre-commit:
+  parallel: true
+  commands:
+    buf-lint:
+      glob: "**/*.proto"
+      run: buf lint
+    buf-format:
+      glob: "**/*.proto"
+      run: buf format --diff --exit-code
