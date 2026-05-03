@@ -31,6 +31,7 @@ jobs:
 
       - name: buf breaking
         if: github.event_name == 'pull_request'
+        continue-on-error: true  # Advisory until v1.0 — intentional breaking changes expected pre-GA
         run: buf breaking --against "https://github.com/${{ github.repository }}.git#branch=${{ github.event.pull_request.base.ref }}"
 
   publish:
