@@ -35,7 +35,10 @@ message CreateProjectResponse {
 }
 
 message GetProjectRequest {
-  string id = 1 [(buf.validate.field).string.min_len = 1];
+  string id = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
 }
 
 message GetProjectResponse {
@@ -52,13 +55,19 @@ message ListProjectsResponse {
 }
 
 message DeleteProjectRequest {
-  string id = 1 [(buf.validate.field).string.min_len = 1];
+  string id = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
 }
 
 message DeleteProjectResponse {}
 
 message CreateAPIKeyRequest {
-  string project_id = 1 [(buf.validate.field).string.min_len = 1];
+  string project_id = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
   string name = 2 [(buf.validate.field).string = {
     min_len: 1
     max_len: 255
@@ -71,7 +80,10 @@ message CreateAPIKeyResponse {
 }
 
 message ListAPIKeysRequest {
-  string project_id = 1 [(buf.validate.field).string.min_len = 1];
+  string project_id = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
 }
 
 message ListAPIKeysResponse {
@@ -79,7 +91,10 @@ message ListAPIKeysResponse {
 }
 
 message RevokeAPIKeyRequest {
-  string id = 1 [(buf.validate.field).string.min_len = 1];
+  string id = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
 }
 
 message RevokeAPIKeyResponse {}

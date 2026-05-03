@@ -15,7 +15,7 @@ service IngestionService {
 }
 
 message IngestSpansRequest {
-  repeated candela.types.Span spans = 1 [(buf.validate.field).repeated.max_items = 10000];
+  repeated candela.types.Span spans = 1 [(buf.validate.field).repeated.max_items = 1000];
 }
 
 message IngestSpansResponse {
