@@ -51,7 +51,7 @@ buf build
 | Module | Purpose |
 |---|---|
 | [`buf.build/bufbuild/protovalidate`](https://buf.build/bufbuild/protovalidate) | Declarative field validation (CEL) |
-| [`buf.build/googlecloudplatform/bq-schema`](https://buf.build/googlecloudplatform/bq-schema) | BigQuery schema annotations |
+| [`buf.build/googlecloudplatform/bq-schema-api`](https://buf.build/googlecloudplatform/bq-schema-api) | BigQuery schema annotations |
 
 ## Consuming these protos
 
@@ -78,13 +78,16 @@ See the [BSR documentation](https://buf.build/docs/bsr/remote-generation/overvie
 
 ## Publishing
 
-After merging to `main`, push to BSR:
+Publishing to BSR is automated via CI on semver tags:
 
 ```bash
-buf push
+# Tag and push — CI publishes to buf.build/candelahq/protos
+git tag v0.2.0
+git push --tags
 ```
 
-This requires a `BUF_TOKEN` — generate one at [buf.build/settings/user](https://buf.build/settings/user).
+The CI workflow runs lint → format → breaking check, then `buf push --label v0.2.0`.
+Requires `BUF_TOKEN` repository secret (configured).
 
 ## License
 
