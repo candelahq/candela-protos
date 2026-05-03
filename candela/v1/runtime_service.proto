@@ -70,17 +70,33 @@ service RuntimeService {
 
 // ── Shared types ──
 
+// RuntimeState describes the lifecycle of a runtime server.
+enum RuntimeState {
+  RUNTIME_STATE_UNSPECIFIED = 0;
+  RUNTIME_STATE_STOPPED = 1;
+  RUNTIME_STATE_STARTING = 2;
+  RUNTIME_STATE_RUNNING = 3;
+  RUNTIME_STATE_ERROR = 4;
+}
+
+// ModelLoadState describes the result of a load/unload operation.
+enum ModelLoadState {
+  MODEL_LOAD_STATE_UNSPECIFIED = 0;
+  MODEL_LOAD_STATE_LOADED = 1; // Immediately available (Ollama)
+  MODEL_LOAD_STATE_STARTING = 2; // Async startup in progress (vLLM)
+}
+
 // RuntimeStatus describes the current state of a runtime server.
 message RuntimeStatus {
-  // Current state: "stopped", "starting", "running", "error".
-  string status = 1;
+  // Current lifecycle state.
+  RuntimeState state = 1;
   // Backend name: "ollama", "vllm", "lmstudio".
   string backend = 2;
   // OpenAI-compatible API endpoint (e.g. "http://127.0.0.1:11434/v1").
   string endpoint = 3;
   // Seconds since the runtime was started.
   double uptime_seconds = 4;
-  // Error message if status is "error".
+  // Error message if state is RUNTIME_STATE_ERROR.
   string error = 5;
   // When the health check was last performed.
   google.protobuf.Timestamp checked_at = 6;
@@ -149,8 +165,8 @@ message LoadModelRequest {
 }
 
 message LoadModelResponse {
-  // "loaded" (immediate) or "starting" (vLLM, async — poll GetHealth).
-  string status = 1;
+  // Result of the load operation.
+  ModelLoadState state = 1;
 }
 
 message UnloadModelRequest {
@@ -172,8 +188,7 @@ message PullModelRequest {
 }
 
 message PullModelResponse {
-  // Always "pulling" — the download runs asynchronously.
-  string status = 1;
+  // The pull is always asynchronous. Poll GetHealth or ListModels for completion.
 }
 
 message ListBackendsRequest {}

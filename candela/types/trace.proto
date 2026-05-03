@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package candela.types;
 
+import "buf/validate/validate.proto";
 import "candela/types/common.proto";
 import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
@@ -46,9 +47,9 @@ message GenAIAttributes {
   int64 max_tokens = 31; // gen_ai.request.max_tokens
   double top_p = 32; // gen_ai.request.top_p
 
-  // Content (optional, can be large — may be stored in blob store)
-  string input_content = 40; // Prompt / input messages
-  string output_content = 41; // Completion / output messages
+  // Content (optional, can be large — use ref fields for content exceeding 1MB)
+  string input_content = 40 [(buf.validate.field).string.max_len = 1048576];
+  string output_content = 41 [(buf.validate.field).string.max_len = 1048576];
   string input_content_ref = 42; // Reference to blob store if content is large
   string output_content_ref = 43; // Reference to blob store if content is large
 }

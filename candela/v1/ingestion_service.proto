@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package candela.v1;
 
+import "buf/validate/validate.proto";
 import "candela/types/trace.proto";
 
 option go_package = "github.com/candelahq/candela/gen/go/candela/v1";
@@ -14,7 +15,7 @@ service IngestionService {
 }
 
 message IngestSpansRequest {
-  repeated candela.types.Span spans = 1;
+  repeated candela.types.Span spans = 1 [(buf.validate.field).repeated.max_items = 10000];
 }
 
 message IngestSpansResponse {
