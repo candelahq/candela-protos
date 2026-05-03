@@ -25,7 +25,6 @@ buf build
 ```
 .
 ├── buf.yaml              # Module config (buf.build/candelahq/protos)
-├── buf.gen.yaml          # Code generation config (Go, TypeScript, BQ)
 ├── candela/
 │   ├── types/            # Shared message types
 │   │   ├── common.proto  # Pagination, TimeRange, Attribute
