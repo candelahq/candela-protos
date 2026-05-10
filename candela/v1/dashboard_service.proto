@@ -19,7 +19,8 @@ service DashboardService {
   // GetLatencyPercentiles returns latency distribution data.
   rpc GetLatencyPercentiles(GetLatencyPercentilesRequest) returns (GetLatencyPercentilesResponse);
 
-  // GetMyUsage returns the calling user's personal usage summary.
+  // GetMyUsage returns the calling user's personal usage summary (BigQuery).
+  // For real-time budget/grant progress, see UserService.GetMyBudget.
   rpc GetMyUsage(GetMyUsageRequest) returns (GetMyUsageResponse);
 
   // GetTeamLeaderboard returns per-user usage for the team (admin only).
@@ -104,7 +105,7 @@ message GetMyUsageResponse {
   // Budget context
   candela.types.UserBudget budget = 20;
   double total_remaining_usd = 21;
-  // Active grants (grants-first waterfall)
+  // Active grants
   repeated candela.types.BudgetGrant active_grants = 22;
 }
 
