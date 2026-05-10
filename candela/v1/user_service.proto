@@ -242,7 +242,39 @@ message GetCurrentUserResponse {
 message GetMyBudgetRequest {}
 
 message GetMyBudgetResponse {
+  // ── Budget period ──────────────────────────────────────────────────────────
+  // Current daily budget. nil if no budget configured for this user.
+  // Resets at midnight UTC (see issue #136 for timezone support).
   candela.types.UserBudget budget = 1;
+
+  // ── Active grants ──────────────────────────────────────────────────────────
+  // Grants are overflow: consumed after the daily budget is exhausted
+  // (budget-first waterfall). Ordered earliest-expiry-first so the UI can
+  // highlight which grant drains next.
+  // Per-grant remaining: grant.amount_usd - grant.spent_usd (compute client-side).
   repeated candela.types.BudgetGrant active_grants = 2;
+
+  // ── Totals ─────────────────────────────────────────────────────────────────
+  // Identical to CheckBudget.RemainingUSD — what the proxy enforces.
+  // What the developer sees == what the gate uses for block/allow decisions.
   double total_remaining_usd = 3;
+
+  // ── Derived per-pool remaining (saves client subtraction) ──────────────────
+  // budget.limit_usd - budget.spent_usd, clamped to >= 0.
+  double budget_remaining_usd = 4;
+  // Sum of (amount_usd - spent_usd) across all active grants.
+  double grants_remaining_usd = 5;
+
+  // ── Today's token picture (Firestore fast path) ────────────────────────────
+  // Total tokens used today across ALL calls, regardless of whether cost was
+  // absorbed by the budget or a grant (all_tokens_used counter).
+  // For the accurate input/output split, call DashboardService.GetMyUsage.
+  int64 tokens_used_today = 10;
+
+  // ── Period metadata ────────────────────────────────────────────────────────
+  // UTC date key for the current budget period, e.g. "2026-05-09".
+  string period_key = 20;
+  // ISO 8601 timestamp of the next budget reset (midnight UTC).
+  // e.g. "2026-05-10T00:00:00Z". Client converts to local time for display.
+  string period_resets_at = 21;
 }
