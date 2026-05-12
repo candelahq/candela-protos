@@ -21,14 +21,20 @@ enum AnnotationType {
 // Storage: annotations table (DuckDB/SQLite/BigQuery) with trace_id FK for JOINs.
 // Not stored in Firestore — annotations are analytical data that belongs with traces.
 message Annotation {
-  string id = 1;
+  string id = 1 [(buf.validate.field).string.min_len = 1];
   string trace_id = 2 [(buf.validate.field).string.min_len = 1];
 
-  AnnotationType type = 3;
+  AnnotationType type = 3 [(buf.validate.field).enum = {
+    defined_only: true
+    not_in: [0]
+  }];
 
   // Outcome fields (when type = OUTCOME)
   bool success = 10;
-  double score = 11; // 0.0–1.0 normalized quality score
+  double score = 11 [(buf.validate.field).double = {
+    gte: 0
+    lte: 1
+  }]; // 0.0–1.0 normalized quality score
 
   // Label fields (when type = LABEL)
   string label = 20; // "correct", "incorrect", "partial", custom string
@@ -40,5 +46,5 @@ message Annotation {
 
   // Common
   string comment = 40; // Free-text explanation
-  google.protobuf.Timestamp created_at = 50;
+  google.protobuf.Timestamp created_at = 50 [(buf.validate.field).required = true];
 }
