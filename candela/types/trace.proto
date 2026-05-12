@@ -91,6 +91,29 @@ message Span {
   string service_name = 42;
   string user_id = 43; // Developer who triggered this span
 
+  // ── SDK Enrichment (populated from X-Candela-* headers or W3C Baggage) ──
+
+  // Conversation/session identifier for grouping related proxy calls.
+  // Set via X-Session-Id header by candela-local.
+  string session_id = 44;
+
+  // Downstream customer/tenant for multitenant cost attribution.
+  // Set via X-Candela-Tenant-Id header or W3C Baggage (candela.tenant_id).
+  string tenant_id = 45;
+
+  // Job/experiment/workflow identifier for cost attribution and A/B grouping.
+  // Set via X-Candela-Job header or W3C Baggage (candela.job_id).
+  string job_id = 46;
+
+  // Logical trace group for correlating multi-step agent sessions.
+  // All proxy calls within one agent run share this ID.
+  // Set via X-Candela-Trace-Group header or W3C Baggage (candela.trace_group).
+  string trace_group = 47;
+
+  // Arbitrary user-defined key-value labels for custom filtering.
+  // Set via X-Candela-Labels header (comma-separated k=v pairs).
+  map<string, string> labels = 48;
+
   // Events (OTel span events)
   repeated SpanEvent events = 50;
 }
@@ -117,6 +140,10 @@ message Trace {
   double total_cost_usd = 9;
   string root_span_name = 10;
   string user_id = 11; // Developer who owns this trace
+  string session_id = 12;
+  string tenant_id = 13;
+  string job_id = 14;
+  string trace_group = 15;
 
   // All spans in the trace
   repeated Span spans = 20;
@@ -141,4 +168,8 @@ message TraceSummary {
   string primary_model = 15; // Most-used model in the trace
   string primary_provider = 16;
   string user_id = 17; // Developer who owns this trace
+  string session_id = 18;
+  string tenant_id = 19;
+  string job_id = 20;
+  string trace_group = 21;
 }

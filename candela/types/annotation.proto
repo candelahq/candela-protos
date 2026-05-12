@@ -1,0 +1,50 @@
+syntax = "proto3";
+
+package candela.types;
+
+import "buf/validate/validate.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/candelahq/candela/gen/go/candela/types";
+
+// AnnotationType categorizes the kind of post-hoc annotation.
+enum AnnotationType {
+  ANNOTATION_TYPE_UNSPECIFIED = 0;
+  ANNOTATION_TYPE_OUTCOME = 1; // Business outcome (success/fail + score)
+  ANNOTATION_TYPE_LABEL = 2; // Human review label (correct/incorrect/partial)
+  ANNOTATION_TYPE_METRIC = 3; // Custom domain metric (clinical_accuracy: 0.95)
+}
+
+// Annotation is a post-hoc enrichment attached to a trace after execution.
+// This enables business outcome correlation, eval ground truth, and compliance review.
+//
+// Storage: annotations table (DuckDB/SQLite/BigQuery) with trace_id FK for JOINs.
+// Not stored in Firestore — annotations are analytical data that belongs with traces.
+message Annotation {
+  string id = 1 [(buf.validate.field).string.min_len = 1];
+  string trace_id = 2 [(buf.validate.field).string.min_len = 1];
+
+  AnnotationType type = 3 [(buf.validate.field).enum = {
+    defined_only: true
+    not_in: [0]
+  }];
+
+  // Outcome fields (when type = OUTCOME)
+  bool success = 10;
+  double score = 11 [(buf.validate.field).double = {
+    gte: 0
+    lte: 1
+  }]; // 0.0–1.0 normalized quality score
+
+  // Label fields (when type = LABEL)
+  string label = 20; // "correct", "incorrect", "partial", custom string
+  string reviewer = 21; // Who applied the label (email or system ID)
+
+  // Metric fields (when type = METRIC)
+  string metric_name = 30; // "clinical_accuracy", "legal_compliance", etc.
+  double metric_value = 31;
+
+  // Common
+  string comment = 40; // Free-text explanation
+  google.protobuf.Timestamp created_at = 50 [(buf.validate.field).required = true];
+}

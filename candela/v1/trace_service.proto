@@ -39,6 +39,9 @@ message ListTracesRequest {
   string provider = 11; // Filter by provider
   candela.types.SpanStatus status = 12; // Filter by status
   string search = 13; // Free-text search in span names
+  string tenant_id = 14; // Filter by tenant
+  string job_id = 15; // Filter by job/experiment
+  string trace_group = 16; // Filter by trace group
 
   // Pagination
   candela.types.PaginationRequest pagination = 20;
@@ -61,6 +64,9 @@ message SearchSpansRequest {
   candela.types.SpanKind kind = 10;
   string model = 11;
   string name_contains = 12;
+  string tenant_id = 13; // Filter by tenant
+  string job_id = 14; // Filter by job/experiment
+  string trace_group = 15; // Filter by trace group
 
   candela.types.PaginationRequest pagination = 20;
 }
