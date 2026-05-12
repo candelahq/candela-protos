@@ -48,6 +48,12 @@ message BqSpanRow {
   string user_id = 23;
   // Conversation/session identifier for grouping related spans.
   string session_id = 24;
+  // Downstream tenant for multitenant cost attribution.
+  string tenant_id = 25;
+  // Job/experiment identifier.
+  string job_id = 26;
+  // Logical trace group for multi-step agent correlation.
+  string trace_group = 27;
 
   // GenAI model identifier (e.g., gpt-4o, gemini-2.5-pro).
   string gen_ai_model = 30;
@@ -72,6 +78,10 @@ message BqSpanRow {
 
   // Structured attributes from OpenTelemetry key-value pairs.
   repeated BqAttribute attributes = 40;
+
+  // User-defined labels for custom filtering and cost attribution.
+  // Set via X-Candela-Labels header (comma-separated k=v pairs).
+  repeated BqAttribute labels = 41;
 }
 
 // BqAttribute is a key-value pair stored as a RECORD in BigQuery.

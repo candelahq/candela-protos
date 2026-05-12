@@ -1,0 +1,74 @@
+syntax = "proto3";
+
+package candela.v1;
+
+import "buf/validate/validate.proto";
+import "candela/types/annotation.proto";
+
+option go_package = "github.com/candelahq/candela/gen/go/candela/v1";
+
+// AnnotationService provides APIs for post-hoc trace enrichment.
+// This backs the Layer 3 SDK (outcome logging, human labeling, custom metrics).
+// Exposed via ConnectRPC for SDK clients and the web UI review queue.
+//
+// Annotations are stored in a dedicated AnnotationStore (not piped through
+// the span ingestion pipeline) because they have CRUD semantics, low volume,
+// and arrive after trace completion.
+service AnnotationService {
+  // SetOutcome records a business outcome for a trace.
+  rpc SetOutcome(SetOutcomeRequest) returns (SetOutcomeResponse);
+
+  // AddLabel attaches a human review label to a trace.
+  rpc AddLabel(AddLabelRequest) returns (AddLabelResponse);
+
+  // LogMetric records a custom domain metric for a trace.
+  rpc LogMetric(LogMetricRequest) returns (LogMetricResponse);
+
+  // ListAnnotations returns all annotations for a trace.
+  rpc ListAnnotations(ListAnnotationsRequest) returns (ListAnnotationsResponse);
+}
+
+message SetOutcomeRequest {
+  string trace_id = 1 [(buf.validate.field).string.min_len = 1];
+  bool success = 2;
+  double score = 3 [(buf.validate.field).double = {
+    gte: 0
+    lte: 1
+  }];
+  string comment = 4;
+}
+
+message SetOutcomeResponse {
+  candela.types.Annotation annotation = 1;
+}
+
+message AddLabelRequest {
+  string trace_id = 1 [(buf.validate.field).string.min_len = 1];
+  string label = 2 [(buf.validate.field).string.min_len = 1];
+  string reviewer = 3;
+  string comment = 4;
+}
+
+message AddLabelResponse {
+  candela.types.Annotation annotation = 1;
+}
+
+message LogMetricRequest {
+  string trace_id = 1 [(buf.validate.field).string.min_len = 1];
+  string metric_name = 2 [(buf.validate.field).string.min_len = 1];
+  double metric_value = 3;
+  string comment = 4;
+}
+
+message LogMetricResponse {
+  candela.types.Annotation annotation = 1;
+}
+
+message ListAnnotationsRequest {
+  string trace_id = 1 [(buf.validate.field).string.min_len = 1];
+  candela.types.AnnotationType type_filter = 2; // Optional: filter by type
+}
+
+message ListAnnotationsResponse {
+  repeated candela.types.Annotation annotations = 1;
+}
