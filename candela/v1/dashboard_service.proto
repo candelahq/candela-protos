@@ -45,6 +45,8 @@ message GetUsageSummaryResponse {
   double total_cost_usd = 6;
   double avg_latency_ms = 7;
   double error_rate = 8;
+  int64 total_cache_read_tokens = 9;
+  int64 total_cache_creation_tokens = 10;
 
   // Time series for charts
   repeated TimeSeriesPoint traces_over_time = 20;
