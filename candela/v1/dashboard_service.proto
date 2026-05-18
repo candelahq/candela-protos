@@ -10,18 +10,30 @@ option go_package = "github.com/candelahq/candela/gen/go/candela/v1";
 // DashboardService provides aggregated metrics and usage data.
 // Exposed via ConnectRPC for the web UI dashboards.
 service DashboardService {
-  // GetUsageSummary returns aggregated token usage, cost, and request counts.
-  rpc GetUsageSummary(GetUsageSummaryRequest) returns (GetUsageSummaryResponse);
+  // GetDashboardData returns a consolidated dashboard view including usage
+  // summary, per-model breakdown, and (if authenticated) per-user budget
+  // context. Replaces the concurrent fan-out of GetUsageSummary +
+  // GetModelBreakdown + GetMyUsage with a single round-trip.
+  rpc GetDashboardData(GetDashboardDataRequest) returns (GetDashboardDataResponse);
 
-  // GetModelBreakdown returns usage broken down by model.
-  rpc GetModelBreakdown(GetModelBreakdownRequest) returns (GetModelBreakdownResponse);
+  // Deprecated: use GetDashboardData instead.
+  rpc GetUsageSummary(GetUsageSummaryRequest) returns (GetUsageSummaryResponse) {
+    option deprecated = true;
+  }
+
+  // Deprecated: use GetDashboardData instead.
+  rpc GetModelBreakdown(GetModelBreakdownRequest) returns (GetModelBreakdownResponse) {
+    option deprecated = true;
+  }
 
   // GetLatencyPercentiles returns latency distribution data.
   rpc GetLatencyPercentiles(GetLatencyPercentilesRequest) returns (GetLatencyPercentilesResponse);
 
-  // GetMyUsage returns the calling user's personal usage summary (BigQuery).
+  // Deprecated: use GetDashboardData with include_budget=true instead.
   // For real-time budget/grant progress, see UserService.GetMyBudget.
-  rpc GetMyUsage(GetMyUsageRequest) returns (GetMyUsageResponse);
+  rpc GetMyUsage(GetMyUsageRequest) returns (GetMyUsageResponse) {
+    option deprecated = true;
+  }
 
   // GetTeamLeaderboard returns per-user usage for the team (admin only).
   rpc GetTeamLeaderboard(GetTeamLeaderboardRequest) returns (GetTeamLeaderboardResponse);
@@ -170,4 +182,32 @@ message JobUsage {
   double cost_usd = 4;
   double avg_latency_ms = 5;
   string top_model = 6;
+}
+
+// ── Consolidated Dashboard ──
+
+message GetDashboardDataRequest {
+  string project_id = 1;
+  candela.types.TimeRange time_range = 2;
+  string environment = 3;
+  // If true, includes per-user budget and grant context (requires auth).
+  // When false or unauthenticated, the budget/grant fields are omitted.
+  bool include_budget = 4;
+}
+
+message GetDashboardDataResponse {
+  // Consolidated usage summary and time series.
+  GetUsageSummaryResponse summary = 1;
+
+  // Per-model breakdown.
+  repeated ModelUsage models = 2;
+
+  // Per-user budget context (populated when include_budget=true + auth).
+  // Absent when budget was not requested or user is unauthenticated.
+  message BudgetContext {
+    candela.types.UserBudget budget = 1;
+    double total_remaining_usd = 2;
+    repeated candela.types.BudgetGrant active_grants = 3;
+  }
+  BudgetContext budget_context = 3;
 }
