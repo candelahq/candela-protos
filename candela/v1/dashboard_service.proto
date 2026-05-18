@@ -10,18 +10,30 @@ option go_package = "github.com/candelahq/candela/gen/go/candela/v1";
 // DashboardService provides aggregated metrics and usage data.
 // Exposed via ConnectRPC for the web UI dashboards.
 service DashboardService {
-  // GetUsageSummary returns aggregated token usage, cost, and request counts.
-  rpc GetUsageSummary(GetUsageSummaryRequest) returns (GetUsageSummaryResponse);
+  // GetDashboardData returns a consolidated dashboard view including usage
+  // summary, per-model breakdown, and (if authenticated) per-user budget
+  // context. Replaces the concurrent fan-out of GetUsageSummary +
+  // GetModelBreakdown + GetMyUsage with a single round-trip.
+  rpc GetDashboardData(GetDashboardDataRequest) returns (GetDashboardDataResponse);
 
-  // GetModelBreakdown returns usage broken down by model.
-  rpc GetModelBreakdown(GetModelBreakdownRequest) returns (GetModelBreakdownResponse);
+  // Deprecated: use GetDashboardData instead.
+  rpc GetUsageSummary(GetUsageSummaryRequest) returns (GetUsageSummaryResponse) {
+    option deprecated = true;
+  }
+
+  // Deprecated: use GetDashboardData instead.
+  rpc GetModelBreakdown(GetModelBreakdownRequest) returns (GetModelBreakdownResponse) {
+    option deprecated = true;
+  }
 
   // GetLatencyPercentiles returns latency distribution data.
   rpc GetLatencyPercentiles(GetLatencyPercentilesRequest) returns (GetLatencyPercentilesResponse);
 
-  // GetMyUsage returns the calling user's personal usage summary (BigQuery).
+  // Deprecated: use GetDashboardData with include_budget=true instead.
   // For real-time budget/grant progress, see UserService.GetMyBudget.
-  rpc GetMyUsage(GetMyUsageRequest) returns (GetMyUsageResponse);
+  rpc GetMyUsage(GetMyUsageRequest) returns (GetMyUsageResponse) {
+    option deprecated = true;
+  }
 
   // GetTeamLeaderboard returns per-user usage for the team (admin only).
   rpc GetTeamLeaderboard(GetTeamLeaderboardRequest) returns (GetTeamLeaderboardResponse);
@@ -45,6 +57,9 @@ message GetUsageSummaryResponse {
   double total_cost_usd = 6;
   double avg_latency_ms = 7;
   double error_rate = 8;
+
+  // Cache metrics — these fields are subsets of total_input_tokens.
+  // Cache hit rate = cache_read_tokens / input_tokens (excludes output tokens).
   int64 total_cache_read_tokens = 9;
   int64 total_cache_creation_tokens = 10;
 
@@ -52,6 +67,10 @@ message GetUsageSummaryResponse {
   repeated TimeSeriesPoint traces_over_time = 20;
   repeated TimeSeriesPoint cost_over_time = 21;
   repeated TimeSeriesPoint tokens_over_time = 22;
+  repeated TimeSeriesPoint cache_read_tokens_over_time = 23;
+  repeated TimeSeriesPoint cache_creation_tokens_over_time = 24;
+  repeated TimeSeriesPoint input_tokens_over_time = 25;
+  repeated TimeSeriesPoint output_tokens_over_time = 26;
 }
 
 message TimeSeriesPoint {
@@ -76,6 +95,10 @@ message ModelUsage {
   int64 output_tokens = 5;
   double cost_usd = 6;
   double avg_latency_ms = 7;
+  // Cache metrics per model — subset of input_tokens.
+  // Cache hit rate = cache_read_tokens / input_tokens.
+  int64 cache_read_tokens = 8;
+  int64 cache_creation_tokens = 9;
 }
 
 message GetLatencyPercentilesRequest {
@@ -105,6 +128,9 @@ message GetMyUsageResponse {
   int64 total_output_tokens = 3;
   double total_cost_usd = 4;
   double avg_latency_ms = 5;
+  // Cache metrics — subset of total_input_tokens.
+  int64 total_cache_read_tokens = 6;
+  int64 total_cache_creation_tokens = 7;
   // Per-model breakdown for this user
   repeated ModelUsage models = 10;
   // Budget context
@@ -156,4 +182,48 @@ message JobUsage {
   double cost_usd = 4;
   double avg_latency_ms = 5;
   string top_model = 6;
+}
+
+// ── Consolidated Dashboard ──
+
+message GetDashboardDataRequest {
+  string project_id = 1;
+  candela.types.TimeRange time_range = 2;
+  string environment = 3;
+  // If true, includes per-user budget and grant context (requires auth).
+  // When false or unauthenticated, the budget/grant fields are omitted.
+  bool include_budget = 4;
+}
+
+message GetDashboardDataResponse {
+  // ── Aggregate summary ──
+  int64 total_traces = 1;
+  int64 total_spans = 2;
+  int64 total_llm_calls = 3;
+  int64 total_input_tokens = 4;
+  int64 total_output_tokens = 5;
+  double total_cost_usd = 6;
+  double avg_latency_ms = 7;
+  double error_rate = 8;
+
+  // Cache metrics — subsets of total_input_tokens.
+  int64 total_cache_read_tokens = 9;
+  int64 total_cache_creation_tokens = 10;
+
+  // ── Time series for charts ──
+  repeated TimeSeriesPoint traces_over_time = 20;
+  repeated TimeSeriesPoint cost_over_time = 21;
+  repeated TimeSeriesPoint tokens_over_time = 22;
+  repeated TimeSeriesPoint cache_read_tokens_over_time = 23;
+  repeated TimeSeriesPoint cache_creation_tokens_over_time = 24;
+  repeated TimeSeriesPoint input_tokens_over_time = 25;
+  repeated TimeSeriesPoint output_tokens_over_time = 26;
+
+  // ── Per-model breakdown ──
+  repeated ModelUsage models = 30;
+
+  // ── Per-user budget context (populated when include_budget=true + auth) ──
+  candela.types.UserBudget budget = 40;
+  double total_remaining_usd = 41;
+  repeated candela.types.BudgetGrant active_grants = 42;
 }
