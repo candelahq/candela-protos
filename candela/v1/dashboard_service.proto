@@ -196,34 +196,18 @@ message GetDashboardDataRequest {
 }
 
 message GetDashboardDataResponse {
-  // ── Aggregate summary ──
-  int64 total_traces = 1;
-  int64 total_spans = 2;
-  int64 total_llm_calls = 3;
-  int64 total_input_tokens = 4;
-  int64 total_output_tokens = 5;
-  double total_cost_usd = 6;
-  double avg_latency_ms = 7;
-  double error_rate = 8;
+  // Consolidated usage summary and time series.
+  GetUsageSummaryResponse summary = 1;
 
-  // Cache metrics — subsets of total_input_tokens.
-  int64 total_cache_read_tokens = 9;
-  int64 total_cache_creation_tokens = 10;
+  // Per-model breakdown.
+  repeated ModelUsage models = 2;
 
-  // ── Time series for charts ──
-  repeated TimeSeriesPoint traces_over_time = 20;
-  repeated TimeSeriesPoint cost_over_time = 21;
-  repeated TimeSeriesPoint tokens_over_time = 22;
-  repeated TimeSeriesPoint cache_read_tokens_over_time = 23;
-  repeated TimeSeriesPoint cache_creation_tokens_over_time = 24;
-  repeated TimeSeriesPoint input_tokens_over_time = 25;
-  repeated TimeSeriesPoint output_tokens_over_time = 26;
-
-  // ── Per-model breakdown ──
-  repeated ModelUsage models = 30;
-
-  // ── Per-user budget context (populated when include_budget=true + auth) ──
-  candela.types.UserBudget budget = 40;
-  double total_remaining_usd = 41;
-  repeated candela.types.BudgetGrant active_grants = 42;
+  // Per-user budget context (populated when include_budget=true + auth).
+  // Absent when budget was not requested or user is unauthenticated.
+  message BudgetContext {
+    candela.types.UserBudget budget = 1;
+    double total_remaining_usd = 2;
+    repeated candela.types.BudgetGrant active_grants = 3;
+  }
+  BudgetContext budget_context = 3;
 }
