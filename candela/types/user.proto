@@ -39,8 +39,9 @@ message User {
   UserRole role = 4;
   UserStatus status = 5;
   google.protobuf.Timestamp created_at = 6;
-  google.protobuf.Timestamp last_seen_at = 7;
+  google.protobuf.Timestamp last_seen_at = 7; // Last web/dashboard login
   int32 rate_limit = 8; // Max requests/minute (0 = default)
+  google.protobuf.Timestamp last_active_at = 9; // Last proxy/API token usage
 }
 
 // UserBudget tracks a user's recurring spend for a budget period.
