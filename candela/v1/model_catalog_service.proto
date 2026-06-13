@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package candela.v1;
 
+import "buf/validate/validate.proto";
 import "candela/types/model_catalog.proto";
 import "google/protobuf/field_mask.proto";
 
@@ -18,6 +19,12 @@ service ModelCatalogService {
   // UpdateModelCatalogEntry updates a single model entry.
   // Admin-only. Returns Unimplemented when the catalog backend is read-only (e.g., config file).
   rpc UpdateModelCatalogEntry(UpdateModelCatalogEntryRequest) returns (UpdateModelCatalogEntryResponse);
+
+  // DeleteModelCatalogEntry removes a model entry from the catalog.
+  // Admin-only. Returns Unimplemented when the catalog backend is read-only.
+  // Semantics: hard delete from the store. To soft-delete, use UpdateModelCatalogEntry
+  // with update_mask: ["enabled"] and enabled: false.
+  rpc DeleteModelCatalogEntry(DeleteModelCatalogEntryRequest) returns (DeleteModelCatalogEntryResponse);
 }
 
 message ListModelCatalogRequest {
@@ -49,4 +56,15 @@ message UpdateModelCatalogEntryRequest {
 message UpdateModelCatalogEntryResponse {
   // The updated catalog entry as stored.
   candela.types.ModelCatalogEntry entry = 1;
+}
+
+message DeleteModelCatalogEntryRequest {
+  // Provider of the model to delete.
+  string provider = 1 [(buf.validate.field).string.min_len = 1];
+  // Model ID to delete.
+  string model_id = 2 [(buf.validate.field).string.min_len = 1];
+}
+
+message DeleteModelCatalogEntryResponse {
+  // Empty on success. The server returns NotFound if the entry does not exist.
 }
