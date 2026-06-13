@@ -1,0 +1,63 @@
+syntax = "proto3";
+
+package candela.types;
+
+import "buf/validate/validate.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/candelahq/candela/gen/go/candela/types";
+
+// ModelCatalogEntry represents a single model in the catalog with its
+// pricing, metadata, and visibility state.
+message ModelCatalogEntry {
+  // Canonical short form: "gemini-2.5-pro", "claude-sonnet-4", "gpt-4o"
+  string model_id = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+  // Provider name: "google", "anthropic", "openai", "mistral", etc.
+  string provider = 2 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 64
+  }];
+  // Human-readable display name for UI rendering.
+  string display_name = 3 [(buf.validate.field).string = {max_len: 256}];
+
+  // Pricing in USD per 1 million tokens.
+  double input_per_million = 4 [(buf.validate.field).double = {gte: 0}];
+  double output_per_million = 5 [(buf.validate.field).double = {gte: 0}];
+
+  // Admin visibility toggle. Only mutable in database-backed catalog modes.
+  bool enabled = 6;
+
+  // Model category for grouping in UIs.
+  // Examples: "chat", "code", "reasoning", "embedding"
+  string category = 7;
+  // Maximum context window in tokens. 0 means unknown.
+  int64 context_window = 8;
+
+  // Tiered pricing for models that charge higher rates above a token threshold
+  // (e.g., Gemini 2.5 Pro charges more above 200K input tokens).
+  double input_per_million_high = 9 [(buf.validate.field).double = {gte: 0}];
+  double output_per_million_high = 10 [(buf.validate.field).double = {gte: 0}];
+  int64 tier_threshold_tokens = 11;
+
+  // Known aliases this entry covers (date-suffixed variants, legacy names).
+  // Example: ["claude-sonnet-4-20250514", "claude-3-5-sonnet-v2"]
+  repeated string aliases = 12;
+
+  // Reserved for future multi-tenant catalog isolation.
+  // Empty means visible to all tenants. Non-empty restricts to listed tenants only.
+  repeated string allowed_tenants = 13;
+
+  // Optional model-level discount (0.0-1.0). Applied before global discount.
+  // Example: 0.25 = 25% discount for negotiated enterprise pricing.
+  double discount_percent = 14 [(buf.validate.field).double = {
+    gte: 0
+    lte: 1
+  }];
+
+  // When this entry was last modified. Set by the server on writes, read-only
+  // for clients. Useful for audit trail and debugging pricing changes.
+  google.protobuf.Timestamp updated_at = 15;
+}
