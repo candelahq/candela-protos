@@ -48,4 +48,11 @@ message ModelCatalogEntry {
   // Reserved for future multi-tenant catalog isolation.
   // Empty means visible to all tenants. Non-empty restricts to listed tenants only.
   repeated string allowed_tenants = 13;
+
+  // Optional model-level discount (0.0-1.0). Applied before global discount.
+  // Example: 0.25 = 25% discount for negotiated enterprise pricing.
+  double discount_percent = 14 [(buf.validate.field).double = {
+    gte: 0
+    lte: 1
+  }];
 }
