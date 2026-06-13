@@ -3,7 +3,6 @@ syntax = "proto3";
 package candela.types;
 
 import "buf/validate/validate.proto";
-import "google/protobuf/timestamp.proto";
 
 option go_package = "github.com/candelahq/candela/gen/go/candela/types";
 
@@ -56,8 +55,4 @@ message ModelCatalogEntry {
     gte: 0
     lte: 1
   }];
-
-  // When this entry was last modified. Set by the server on writes, read-only
-  // for clients. Useful for audit trail and debugging pricing changes.
-  google.protobuf.Timestamp updated_at = 15;
 }
