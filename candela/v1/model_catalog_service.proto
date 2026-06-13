@@ -1,0 +1,52 @@
+syntax = "proto3";
+
+package candela.v1;
+
+import "candela/types/model_catalog.proto";
+import "google/protobuf/field_mask.proto";
+
+option go_package = "github.com/candelahq/candela/gen/go/candela/v1";
+
+// ModelCatalogService provides read and admin-write access to the model catalog.
+// ListModelCatalog is available to all authenticated users.
+// UpdateModelCatalogEntry is admin-only and requires a database-backed catalog.
+service ModelCatalogService {
+  // ListModelCatalog returns all models in the catalog.
+  // Non-admin callers always receive enabled-only models regardless of include_disabled.
+  rpc ListModelCatalog(ListModelCatalogRequest) returns (ListModelCatalogResponse);
+
+  // UpdateModelCatalogEntry updates a single model entry.
+  // Admin-only. Returns Unimplemented when the catalog backend is read-only (e.g., config file).
+  rpc UpdateModelCatalogEntry(UpdateModelCatalogEntryRequest) returns (UpdateModelCatalogEntryResponse);
+}
+
+message ListModelCatalogRequest {
+  // If true, include disabled models in the response.
+  // Silently ignored for non-admin callers (security: no information leakage).
+  bool include_disabled = 1;
+}
+
+message ListModelCatalogResponse {
+  // All matching catalog entries.
+  repeated candela.types.ModelCatalogEntry models = 1;
+  // Backend source identifier: "config", "firestore", "postgres", etc.
+  string source = 2;
+  // Version hash or timestamp. Clients can cache locally and skip re-rendering
+  // if the version has not changed since their last fetch.
+  string version = 3;
+  // True when the catalog backend supports writes (UpdateModelCatalogEntry).
+  bool admin_editable = 4;
+}
+
+message UpdateModelCatalogEntryRequest {
+  // The catalog entry with updated fields.
+  candela.types.ModelCatalogEntry entry = 1;
+  // Fields to update. If empty, all fields are updated.
+  // Example: paths: ["enabled"] to toggle visibility without touching pricing.
+  google.protobuf.FieldMask update_mask = 2;
+}
+
+message UpdateModelCatalogEntryResponse {
+  // The updated catalog entry as stored.
+  candela.types.ModelCatalogEntry entry = 1;
+}
