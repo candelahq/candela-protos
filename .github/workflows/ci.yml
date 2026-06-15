@@ -28,7 +28,10 @@ jobs:
       - name: buf format
         run: buf format --diff --exit-code
 
-      - name: buf breaking
+      - name: buf breaking (vs base branch)
         if: github.event_name == 'pull_request'
-        continue-on-error: true  # Advisory until v1.0 — intentional breaking changes expected pre-GA
         run: buf breaking --against "https://github.com/${{ github.repository }}.git#branch=${{ github.event.pull_request.base.ref }}"
+
+      - name: buf breaking (vs BSR)
+        if: github.event_name == 'push'
+        run: buf breaking --against "buf.build/candelahq/protos"
