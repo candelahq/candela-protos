@@ -7,3 +7,9 @@ deps:
   - name: buf.build/googlecloudplatform/bq-schema-api
     commit: 21c7b1fb5fe846d281604e682d7107bf
     digest: b5:e63e2989f291e3a6d9362cc363692b68cba25d49efbce91cb3c545899fc43f247305dc39dd37e659f4ed382613cc5b853e497ae8c97473baf01e3375ca21c078
+  - name: buf.build/protocgen/proto2type
+    commit: 0725c4be171740409a3a4633210a02b2
+    digest: b5:40f416d57126f74e3a420c183e6e1ae911693f0d8dcc4f6898a02b368289100dd5b679331efb1ccf979c76b33e60c427016b8897937c8e17bd89115df3574f27
+  - name: buf.build/protocolbuffers/wellknowntypes
+    commit: 122a3d2fdc814e0bb6fcf821bcce7957
+    digest: b5:1aafdaf51329062dcc57ee613e59e15e5529e994634599ff467501e4d6c670af04eaa4bee3f3da5db64518b3117c34865896eb9b096a15a81051ab82c34e7e95

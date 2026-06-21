@@ -5,6 +5,7 @@ modules:
 deps:
   - buf.build/bufbuild/protovalidate
   - buf.build/googlecloudplatform/bq-schema-api
+  - buf.build/protocgen/proto2type
 lint:
   use:
     - STANDARD
