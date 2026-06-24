@@ -29,7 +29,7 @@ buf build
 │   ├── types/            # Shared message types
 │   │   ├── annotation.proto  # Annotation
 │   │   ├── common.proto      # Pagination, TimeRange, Attribute
-│   │   ├── model_catalog.proto # ModelCard, ModelVersion
+│   │   ├── model_catalog.proto # ModelCatalogEntry
 │   │   ├── trace.proto       # Span, Trace, TraceSummary
 │   │   ├── user.proto        # User, UserBudget, BudgetGrant, AuditEntry
 │   │   ├── project.proto     # Project, APIKey
