@@ -27,13 +27,17 @@ buf build
 ├── buf.yaml              # Module config (buf.build/candelahq/protos)
 ├── candela/
 │   ├── types/            # Shared message types
-│   │   ├── common.proto  # Pagination, TimeRange, Attribute
-│   │   ├── trace.proto   # Span, Trace, TraceSummary
-│   │   ├── user.proto    # User, UserBudget, BudgetGrant, AuditEntry
-│   │   ├── project.proto # Project, APIKey
-│   │   └── bq_span.proto # BqSpanRow (BigQuery projection)
+│   │   ├── annotation.proto  # Annotation
+│   │   ├── common.proto      # Pagination, TimeRange, Attribute
+│   │   ├── model_catalog.proto # ModelCatalogEntry
+│   │   ├── trace.proto       # Span, Trace, TraceSummary
+│   │   ├── user.proto        # User, UserBudget, BudgetGrant, AuditEntry
+│   │   ├── project.proto     # Project, APIKey
+│   │   └── bq_span.proto     # BqSpanRow (BigQuery projection)
 │   └── v1/               # Service definitions (ConnectRPC / gRPC)
+│       ├── annotation_service.proto
 │       ├── ingestion_service.proto
+│       ├── model_catalog_service.proto
 │       ├── runtime_service.proto
 │       ├── dashboard_service.proto
 │       ├── trace_service.proto
@@ -81,11 +85,11 @@ Publishing to BSR is automated via CI on semver tags:
 
 ```bash
 # Tag and push — CI publishes to buf.build/candelahq/protos
-git tag v0.2.0
+git tag v0.6.0
 git push --tags
 ```
 
-The CI workflow runs lint → format → breaking check, then `buf push --label v0.2.0`.
+The CI workflow runs lint → format → breaking check, then `buf push --label v0.6.0`.
 Requires `BUF_TOKEN` repository secret (configured).
 
 ## License
