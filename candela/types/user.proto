@@ -3,6 +3,7 @@ syntax = "proto3";
 package candela.types;
 
 import "google/protobuf/timestamp.proto";
+import "proto2type/options.proto";
 
 option go_package = "github.com/candelahq/candela/gen/go/candela/types";
 
@@ -36,8 +37,8 @@ message User {
   string id = 1; // UUID
   string email = 2; // From IAP JWT claims
   string display_name = 3;
-  UserRole role = 4;
-  UserStatus status = 5;
+  UserRole role = 4 [(proto2type.field).enum_as_string = OPTIONAL_BOOL_TRUE];
+  UserStatus status = 5 [(proto2type.field).enum_as_string = OPTIONAL_BOOL_TRUE];
   google.protobuf.Timestamp created_at = 6;
   google.protobuf.Timestamp last_seen_at = 7; // Last web/dashboard login
   int32 rate_limit = 8; // Max requests/minute (0 = default)
@@ -51,7 +52,7 @@ message UserBudget {
   double limit_usd = 2; // Budget cap; 0 = no budget (denied)
   double spent_usd = 3; // Accumulated spend this period
   int64 tokens_used = 4; // Accumulated tokens this period
-  BudgetPeriod period_type = 5;
+  BudgetPeriod period_type = 5 [(proto2type.field).enum_as_string = OPTIONAL_BOOL_TRUE];
   string period_key = 6; // "2026-04", "2026-W15", "2026-Q2"
   google.protobuf.Timestamp period_start = 7;
   google.protobuf.Timestamp period_end = 8;
