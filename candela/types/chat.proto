@@ -1,0 +1,86 @@
+syntax = "proto3";
+
+package candela.types;
+
+import "buf/validate/validate.proto";
+import "google/protobuf/struct.proto";
+
+option go_package = "github.com/candelahq/candela/gen/go/candela/types";
+
+// ChatEvent is a streaming event emitted during a chat completion.
+// The harness sends these as JSON-RPC notifications to the IDE client.
+//
+// Each event carries a stream_id that correlates it to the originating
+// chat.send request.
+message ChatEvent {
+  // Stream identifier (UUID v4), set on all events.
+  string stream_id = 1 [(buf.validate.field).string.min_len = 1];
+
+  // Exactly one event type is set per message.
+  oneof event {
+    // Text chunk from the model.
+    ChunkEvent chunk = 2;
+    // Model requests a tool invocation.
+    ToolCallEvent tool_call = 3;
+    // Progress status update.
+    StatusEvent status = 4;
+    // Stream completed successfully.
+    DoneEvent done = 5;
+    // Stream terminated with an error.
+    ErrorEvent error = 6;
+  }
+}
+
+// ChunkEvent is a text delta from the model's streaming response.
+message ChunkEvent {
+  // Incremental text content.
+  string delta = 1;
+}
+
+// ToolCallEvent is emitted when the model requests a tool invocation.
+message ToolCallEvent {
+  // Unique call identifier for correlating tool results.
+  string call_id = 1;
+  // Tool name (e.g. "read_file", "run_command").
+  string tool = 2;
+  // Tool arguments as a JSON object.
+  google.protobuf.Struct args = 3;
+  // Whether the IDE should prompt the user before executing.
+  bool requires_approval = 4;
+}
+
+// StatusEvent provides a progress update during generation.
+message StatusEvent {
+  // Human-readable status text (e.g. "Analyzing codebase...").
+  string text = 1;
+  // Optional subagent identifier if the status is from a delegated agent.
+  optional string agent = 2;
+}
+
+// DoneEvent signals successful completion of the stream.
+message DoneEvent {
+  // Final usage summary for this completion.
+  UsageSummary usage = 1;
+}
+
+// ErrorEvent signals that the stream terminated with an error.
+message ErrorEvent {
+  // Human-readable error message.
+  string message = 1;
+  // Optional error code for programmatic handling.
+  optional string code = 2;
+}
+
+// UsageSummary reports token consumption and cost for a single completion.
+message UsageSummary {
+  // Number of input (prompt) tokens.
+  int64 prompt_tokens = 1;
+  // Number of output (completion) tokens.
+  int64 completion_tokens = 2;
+  // Total tokens (prompt + completion).
+  int64 total_tokens = 3;
+  // Cost in USD for this completion.
+  double total_cost_usd = 4;
+  // Model that served this completion.
+  string model = 5;
+}
