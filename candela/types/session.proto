@@ -84,7 +84,8 @@ message SearchResult {
   string message_preview = 4;
   // Role of the matched message.
   MessageRole role = 5;
-  // FTS5 relevance score (higher = better match).
+  // Relevance score (higher = better match). Producers must negate
+  // the raw FTS5 bm25() value so that consumers can sort descending.
   double score = 6;
   // When the matched message was created.
   google.protobuf.Timestamp created_at = 7;
