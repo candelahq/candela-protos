@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package candela.types;
 
+import "buf/validate/validate.proto";
 import "google/protobuf/struct.proto";
 
 option go_package = "github.com/candelahq/candela/gen/go/candela/types";
@@ -13,7 +14,7 @@ option go_package = "github.com/candelahq/candela/gen/go/candela/types";
 // chat.send request.
 message ChatEvent {
   // Stream identifier (UUID v4), set on all events.
-  string stream_id = 1;
+  string stream_id = 1 [(buf.validate.field).string.min_len = 1];
 
   // Exactly one event type is set per message.
   oneof event {

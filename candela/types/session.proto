@@ -49,8 +49,11 @@ message Session {
 
 // Message is a single turn in a chat session.
 message Message {
-  // Auto-incrementing message ID within the session.
-  int64 id = 1 [(proto2type.field).document_id = true];
+  // Unique message identifier (UUID v4), safe for cross-device sync.
+  string id = 1 [
+    (proto2type.field).document_id = true,
+    (proto2type.field).omitempty = OPTIONAL_BOOL_FALSE
+  ];
   // Parent session.
   string session_id = 2 [(proto2type.field).omitempty = OPTIONAL_BOOL_FALSE];
   // Who sent this message.
@@ -65,20 +68,24 @@ message Message {
   optional double cost_usd = 7;
   // When this message was created.
   google.protobuf.Timestamp created_at = 8;
+  // Monotonic position within the session for display ordering.
+  int64 sequence = 9;
 }
 
 // SearchResult is a ranked match from full-text search across sessions.
 message SearchResult {
   // Session containing the match.
   string session_id = 1;
+  // Message containing the match.
+  string message_id = 2;
   // Title of the matched session.
-  string session_title = 2;
+  string session_title = 3;
   // Snippet of the matched message content.
-  string message_preview = 3;
+  string message_preview = 4;
   // Role of the matched message.
-  MessageRole role = 4;
+  MessageRole role = 5;
   // FTS5 relevance score (higher = better match).
-  double score = 5;
+  double score = 6;
   // When the matched message was created.
-  google.protobuf.Timestamp created_at = 6;
+  google.protobuf.Timestamp created_at = 7;
 }
