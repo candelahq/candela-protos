@@ -1,5 +1,13 @@
 version: v2
 plugins:
+  # Domain types + SQLite storage converters
   - local: protoc-gen-proto2type
     out: gen/rust
     opt: lang=rust,backend=sqlite
+
+  # Buffa (ConnectRPC) converters — domain ↔ buffa proto types
+  # buffa_module is the Rust path where connectrpc-build generates buffa types.
+  # Consumer (candela-harness-connect) uses: crate::proto::candela::types
+  - local: protoc-gen-proto2type
+    out: gen/rust
+    opt: lang=rust,backend=buffa,domain=false,buffa_module=crate::proto::candela::types
