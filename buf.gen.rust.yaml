@@ -10,4 +10,4 @@ plugins:
   # Consumer (candela-harness-connect) uses: crate::proto::candela::types
   - local: protoc-gen-proto2type
     out: gen/rust
-    opt: lang=rust,backend=buffa,domain=false,buffa_module=crate::proto::candela::types,buffa_oneof_prefix=__buffa
+    opt: lang=rust,backend=buffa,domain=false,buffa_module=crate::proto::candela::types,buffa_oneof_prefix=__buffa,domain_module=candela_core::harness
