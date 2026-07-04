@@ -83,4 +83,11 @@ message ModelCatalogEntry {
   // Cloud region for this specific model (e.g., "global", "us-east5").
   // Falls back to the deployment-wide CANDELA_VERTEX_REGION setting if empty.
   string region = 17;
+
+  // Access tags required to use this model.
+  // Empty = open to all users (default).
+  // Non-empty = user must have at least one matching tag in their
+  // access_tags field. Examples: ["pro"], ["preview"]
+  // Admin-managed via UpdateModelCatalogEntry.
+  repeated string required_access = 18;
 }

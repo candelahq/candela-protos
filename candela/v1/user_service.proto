@@ -115,6 +115,7 @@ message UpdateUserRequest {
   string display_name = 2;
   candela.types.UserRole role = 3;
   google.protobuf.FieldMask update_mask = 4; // Which fields to update
+  repeated string access_tags = 5; // Freeform access tags (admin-managed)
 }
 
 message UpdateUserResponse {

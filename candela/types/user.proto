@@ -42,6 +42,14 @@ message User {
   google.protobuf.Timestamp last_seen_at = 7; // Last web/dashboard login
   int32 rate_limit = 8; // Max requests/minute (0 = default)
   google.protobuf.Timestamp last_active_at = 9; // Last proxy/API token usage
+
+  // Access tags controlling which models this user can use.
+  // Freeform strings — admin-defined, no predefined set required.
+  // Examples: ["pro"], ["preview"], ["pro", "preview"]
+  // Empty = unrestricted (backward-compatible default).
+  // A user can access a model if they have ANY tag listed in the
+  // model's required_access field.
+  repeated string access_tags = 10;
 }
 
 // UserBudget tracks a user's recurring spend for a budget period.
