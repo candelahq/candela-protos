@@ -87,8 +87,9 @@ message ModelCatalogEntry {
   // Access tags required to use this model.
   // Empty = open to all users (default).
   // Non-empty = model is restricted; a user must possess at least one matching
-  // tag in their access_tags field to access this model (an untagged user can
-  // only access models with empty required_access). Examples: ["pro"], ["preview"].
+  // tag in their access_tags field to access this model (users with empty
+  // access_tags have default access and can only access models with empty
+  // required_access). Examples: ["pro"], ["preview"].
   // Admin-managed via UpdateModelCatalogEntry.
   repeated string required_access = 18;
 }
