@@ -28,20 +28,23 @@ buf build
 ├── candela/
 │   ├── types/            # Shared message types
 │   │   ├── annotation.proto  # Annotation
+│   │   ├── chat.proto        # ChatMessage, ChatRole, ChatSession
 │   │   ├── common.proto      # Pagination, TimeRange, Attribute
 │   │   ├── model_catalog.proto # ModelCatalogEntry
+│   │   ├── session.proto     # Session, SessionMetadata
 │   │   ├── trace.proto       # Span, Trace, TraceSummary
 │   │   ├── user.proto        # User, UserBudget, BudgetGrant, AuditEntry
 │   │   ├── project.proto     # Project, APIKey
 │   │   └── bq_span.proto     # BqSpanRow (BigQuery projection)
 │   └── v1/               # Service definitions (ConnectRPC / gRPC)
 │       ├── annotation_service.proto
+│       ├── dashboard_service.proto
+│       ├── harness_service.proto
 │       ├── ingestion_service.proto
 │       ├── model_catalog_service.proto
-│       ├── runtime_service.proto
-│       ├── dashboard_service.proto
-│       ├── trace_service.proto
 │       ├── project_service.proto
+│       ├── runtime_service.proto
+│       ├── trace_service.proto
 │       └── user_service.proto
 ├── flake.nix             # Nix dev shell
 ├── lefthook.yml          # Pre-commit hooks
