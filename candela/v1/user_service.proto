@@ -272,10 +272,36 @@ message GetMyBudgetResponse {
   // For the accurate input/output split, call DashboardService.GetMyUsage.
   int64 tokens_used_today = 10;
 
+  // ── Forecast (burn rate & exhaustion) ──────────────────────────────────────
+  // Calculated from today's burn rate and 7-day rolling spend history (#794).
+  BudgetForecast forecast = 11;
+
   // ── Period metadata ────────────────────────────────────────────────────────
   // UTC date key for the current budget period, e.g. "2026-05-09".
   string period_key = 20;
   // ISO 8601 timestamp of the next budget reset (midnight UTC).
   // e.g. "2026-05-10T00:00:00Z". Client converts to local time for display.
   string period_resets_at = 21;
+}
+
+// ──────────────────────────────────────────────────
+// Budget forecast types (#794)
+// ──────────────────────────────────────────────────
+
+// DailySpend represents one day's total spend for a user.
+message DailySpend {
+  string date = 1; // "YYYY-MM-DD"
+  double spend_usd = 2;
+  int64 token_count = 3;
+}
+
+// BudgetForecast contains intraday burn rate projections and multi-day trend analysis.
+message BudgetForecast {
+  double burn_rate_usd_per_hour = 1;
+  double projected_eod_spend_usd = 2;
+  bool will_exceed_budget = 3;
+  double avg_daily_spend_usd = 4;
+  string estimated_exhaustion_date = 5; // "YYYY-MM-DD" or empty
+  int32 days_until_exhaustion = 6; // -1 if N/A, 0 if already exhausted
+  repeated DailySpend spend_history = 7;
 }
