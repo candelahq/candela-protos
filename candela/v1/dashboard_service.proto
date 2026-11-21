@@ -58,10 +58,24 @@ message GetUsageSummaryResponse {
   double avg_latency_ms = 7;
   double error_rate = 8;
 
-  // Cache metrics — these fields are subsets of total_input_tokens.
-  // Cache hit rate = cache_read_tokens / input_tokens (excludes output tokens).
+  // Cache metrics. These are NOT subsets of total_input_tokens. Anthropic
+  // reports input_tokens as fresh tokens only, so cache reads and writes are
+  // additive. OpenAI and Google report a prompt count that already includes
+  // the cached tokens. Use total_prompt_tokens as the denominator for the
+  // cache hit share.
   int64 total_cache_read_tokens = 9;
   int64 total_cache_creation_tokens = 10;
+
+  // True prompt size for the window: fresh tokens plus cache reads and cache
+  // writes where the provider reports them separately. This is the cache hit
+  // denominator. total_input_tokens stays the cost-normalized figure used for
+  // billing.
+  int64 total_prompt_tokens = 11;
+
+  // Amount charged for cache reads and cache writes in the window, in USD.
+  // This is part of total_cost_usd, not a separate charge. Fresh input cost
+  // plus this figure equals the input portion of total_cost_usd.
+  double total_cache_cost_usd = 12;
 
   // Time series for charts
   repeated TimeSeriesPoint traces_over_time = 20;
@@ -95,10 +109,21 @@ message ModelUsage {
   int64 output_tokens = 5;
   double cost_usd = 6;
   double avg_latency_ms = 7;
-  // Cache metrics per model — subset of input_tokens.
-  // Cache hit rate = cache_read_tokens / input_tokens.
+  // Cache metrics per model. Not a subset of input_tokens: Anthropic reports
+  // input_tokens as fresh tokens only, so these are additive, while OpenAI and
+  // Google include the cached tokens in their prompt count.
   int64 cache_read_tokens = 8;
   int64 cache_creation_tokens = 9;
+
+  // True prompt size for this model: fresh tokens plus cache reads and cache
+  // writes where the provider reports them separately. This is the cache hit
+  // denominator. input_tokens stays the cost-normalized figure used for
+  // billing, which is why dividing by it can exceed 100%.
+  int64 prompt_tokens = 10;
+
+  // Amount charged for cache reads and cache writes for this model, in USD.
+  // Part of cost_usd, not an extra charge.
+  double cache_cost_usd = 11;
 }
 
 message GetLatencyPercentilesRequest {

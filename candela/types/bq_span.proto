@@ -82,6 +82,15 @@ message BqSpanRow {
   // User-defined labels for custom filtering and cost attribution.
   // Set via X-Candela-Labels header (comma-separated k=v pairs).
   repeated BqAttribute labels = 41;
+
+  // True prompt size: fresh input plus cache reads and cache writes where the
+  // provider reports them separately. This is the denominator for the cache
+  // hit share. gen_ai_input_tokens stays the cost-normalized billing figure.
+  int64 gen_ai_prompt_tokens = 42;
+
+  // Amount charged for cache reads and cache writes, in USD. Part of
+  // gen_ai_cost_usd, not an extra charge.
+  double gen_ai_cache_cost_usd = 43;
 }
 
 // BqAttribute is a key-value pair stored as a RECORD in BigQuery.
